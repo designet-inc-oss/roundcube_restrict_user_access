@@ -14,3 +14,7 @@ $config['whitelist_users'] = ['user01','user01@example.com'];
 # When enabled, the plugin internally determines the connection using 
 # the X_FORWAREDED_FOR header information as the connection source IP address.
 $config['proxyenabled'] = false;
+
+# If proxyenabled is enabled, set the IP address of the trusted proxy.
+# Multi-stage proxies are currently not supported.
+$config['trusted_proxy'] = "";

@@ -22,6 +22,7 @@ class restrict_user_access extends rcube_plugin
         $conf_allowed_v6networks = rcmail::get_instance()->config->get('allowed_ipv6_networks', []);
         $conf_whiteusers = rcmail::get_instance()->config->get('whitelist_users', []);
         $conf_proxyenabled = rcmail::get_instance()->config->get('proxyenabled', false);
+        $conf_trustedproxy = rcmail::get_instance()->config->get('trusted_proxy', "");
 
         # Allow white list user
         foreach ($conf_whiteusers as $user) {
@@ -30,37 +31,42 @@ class restrict_user_access extends rcube_plugin
             }
         }
 
-	# Get source ip address
+        # Get source ip address
         $remoteip = $_SERVER['REMOTE_ADDR'];
-        if ($conf_proxyenabled === true && isset($_SERVER["HTTP_X_FORWARDED_FOR"])) {
-            $remoteip = $_SERVER["HTTP_X_FORWARDED_FOR"];
+        if ($conf_proxyenabled === true) {
+            if ($remoteip !== $conf_trustedproxy) {
+                $args["abort"] = true;
+                return $args;
+            } 
+            
+            if(isset($_SERVER["HTTP_X_FORWARDED_FOR"])) {
+                $remoteip = $_SERVER["HTTP_X_FORWARDED_FOR"];
+            }
         }
 
-	$remoteip= "2001:268:35d::53:1";
-
-	# IPv4 check
-	$isIPv4 = filter_var($remoteip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4);
-	if ($isIPv4 !== false) {
-           # allow v4 networks
-           foreach ($conf_allowed_v4networks as $network) {
-               $ret = $this->isIPv4InNetwork($remoteip, $network);
-               if ($ret === True) {
-                   return $args;
+        # IPv4 check
+        $isIPv4 = filter_var($remoteip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4);
+        if ($isIPv4 !== false) {
+               # allow v4 networks
+               foreach ($conf_allowed_v4networks as $network) {
+                   $ret = $this->isIPv4InNetwork($remoteip, $network);
+                   if ($ret === True) {
+                       return $args;
+                   }
                }
-           }
-	} 
+        } 
 
-	# IPv6 check
-	$isIPv6 = filter_var($remoteip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6);
-	if ($isIPv6 !== false) {
-           # allow v4 networks
-           foreach ($conf_allowed_v6networks as $network) {
-               $ret = $this->isIPv6InNetwork($remoteip, $network);
-               if ($ret === True) {
-                   return $args;
+        # IPv6 check
+        $isIPv6 = filter_var($remoteip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6);
+        if ($isIPv6 !== false) {
+               # allow v4 networks
+               foreach ($conf_allowed_v6networks as $network) {
+                   $ret = $this->isIPv6InNetwork($remoteip, $network);
+                   if ($ret === True) {
+                       return $args;
+                   }
                }
-           }
-	}
+        }
 
         $args["abort"] = true;
         return $args;
