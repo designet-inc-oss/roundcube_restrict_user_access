@@ -1,0 +1,23 @@
+{
+    "name": "roundcube/restrict_user_access",
+    "type": "roundcube-plugin",
+    "description": "Plugin to allow login from restricted networks. Certain users can also be granted all access.",
+    "license": "GPL-3.0",
+    "version": "1.0",
+    "authors": [
+        {
+            "name": "shogo mori",
+            "email": "smori@designet.co.jp",
+            "role": "Lead"
+        }
+    ],
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://plugins.roundcube.net"
+        }
+    ],
+    "require": {
+        "php": ">=7.3.0"
+    }
+}
